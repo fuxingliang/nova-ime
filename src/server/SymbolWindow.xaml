@@ -1,0 +1,96 @@
+<Window x:Class="PinyinPlus.Server.SymbolWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Nova 符号面板"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ShowActivated="False"
+        Width="380">
+    <Window.Resources>
+        <!-- 分类 Tab 按钮：胶囊样式，选中态由 code-behind 控制 -->
+        <Style x:Key="CatButton" TargetType="Button">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#FF9AA7B4"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,5"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" CornerRadius="6" Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#FF18232F"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Border x:Name="RootBorder"
+            BorderBrush="#FF2A3644"
+            BorderThickness="1"
+            CornerRadius="12"
+            Padding="12,10,12,12">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#F50C1117" Offset="0"/>
+                <GradientStop Color="#F5182534" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.Background>
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" BlurRadius="18" ShadowDepth="5" Opacity="0.5"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- 标题行（按住可拖动窗口） -->
+            <Grid Grid.Row="0" Margin="2,0,2,2" Cursor="SizeAll"
+                  MouseLeftButtonDown="OnHeaderMouseLeftDown"
+                  MouseMove="OnHeaderMouseMove"
+                  MouseLeftButtonUp="OnHeaderMouseUp">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Image Source="pack://application:,,,/Assets/Nova.png"
+                           Width="15" Height="15" Margin="0,0,7,0" VerticalAlignment="Center" Opacity="0.95"/>
+                    <TextBlock Text="符号面板" Foreground="#FFE6EBEF" FontSize="14" FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="点击插入光标处" Foreground="#FF5C6873" FontSize="11"
+                               Margin="8,1,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+                <Border x:Name="CloseBtn" CornerRadius="4" Padding="4,1" HorizontalAlignment="Right"
+                        VerticalAlignment="Center" Cursor="Hand" Background="Transparent"
+                        MouseLeftButtonUp="OnCloseClicked">
+                    <TextBlock x:Name="CloseBtnText" Text="✕" Foreground="#FF7A828E" FontSize="13"/>
+                </Border>
+            </Grid>
+
+            <!-- 分类 Tab 行 -->
+            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                          Margin="0,8,0,2">
+                <WrapPanel x:Name="CatRow" Margin="2,2"/>
+            </ScrollViewer>
+
+            <!-- 分隔线 -->
+            <Rectangle Grid.Row="2" Height="1" Margin="2,8,2,0" VerticalAlignment="Top"
+                       Fill="#FF1E2A38"/>
+
+            <!-- 符号网格 -->
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" MaxHeight="240" Margin="0,12,0,0">
+                <WrapPanel x:Name="SymbolPanel"/>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+</Window>

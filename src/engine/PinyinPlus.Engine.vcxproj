@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{3C1E9B0A-8F4E-4B1D-9A2C-5D6E7F8A9B0C}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>PinyinPlus.Engine</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>g:\pinyin-plus\src\engine;g:\pinyin-plus\src\ime;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>shlwapi.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="engine_main.cpp" />
+    <ClCompile Include="EnginePipe.cpp" />
+    <ClCompile Include="TraditionalConvert.cpp" />
+    <ClCompile Include="engine_debug_stub.cpp" />
+    <ClCompile Include="minidefs.cpp" />
+    <ClCompile Include="..\ime\PinyinEngine.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="EnginePipe.h" />
+    <ClInclude Include="TraditionalConvert.h" />
+    <ClInclude Include="..\ime\PinyinEngine.h" />
+    <ClInclude Include="..\ime\PinyinIpc.h" />
+    <ClInclude Include="..\ime\SampleIMEBaseStructure.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

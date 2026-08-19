@@ -1,0 +1,39 @@
+# ===== 编辑器 / IDE =====
+.history/
+.idea/
+.vs/
+*.code-workspace
+
+# ===== 构建产物 / 输出 =====
+bin/
+dist/
+**/x64/
+**/Release/
+**/Debug/
+*.obj
+*.pdb
+*.ilk
+*.exe
+*.dll
+
+# ===== 日志 =====
+*.log
+*.log.*
+debug.log
+
+# ===== 第三方参考代码（微软 SampleIME，勿入库）=====
+_ref/
+
+# ===== 词库数据源（用 tools/download_rime_dicts.ps1 下载，不入库）=====
+tools/data/
+
+# ===== Python / 工具缓存 =====
+__pycache__/
+*.pyc
+tools/obj/
+tools/.dbg/
+tools/bin/
+
+# ===== 临时 =====
+*.tmp
+*.bak

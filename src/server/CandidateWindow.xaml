@@ -1,0 +1,161 @@
+<Window x:Class="PinyinPlus.Server.CandidateWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PinyinPlus"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        ShowActivated="False">
+    <Border x:Name="RootBorder"
+            BorderBrush="#FF2A3644"
+            BorderThickness="1"
+            CornerRadius="10"
+            Padding="10,8,10,8">
+        <Border.Background>
+            <!-- Nova 品牌皮肤：深夜蓝灰渐变（与 Nova 图标底板一致） -->
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#F20C1117" Offset="0"/>
+                <GradientStop Color="#F2172330" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.Background>
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" BlurRadius="16" ShadowDepth="4" Opacity="0.45"/>
+        </Border.Effect>
+        <Grid x:Name="MainGrid" Background="Transparent"
+              PreviewMouseLeftButtonDown="OnMainGridMouseLeftDown"
+              MouseLeftButtonDown="OnMainGridMouseDown"
+              MouseMove="OnMainGridMouseMove"
+              MouseLeftButtonUp="OnMainGridMouseUp"
+              LostMouseCapture="OnMainGridLostMouseCapture">
+            <StackPanel>
+                <!-- 拖动把手：视觉提示 + 直接拖动；空白区域同样可拖（拖动中定位被抑制） -->
+                <Border x:Name="DragHandle" Height="6" CornerRadius="3" Margin="0,0,0,4"
+                        Background="#1A000000" Cursor="SizeAll" ToolTip="按住拖动调整位置（右键候选词 → 重置位置）"
+                        MouseEnter="OnDragHandleEnter" MouseLeave="OnDragHandleLeave"
+                        MouseLeftButtonDown="OnDragHandleDown"/>
+                <!-- 拼音缓冲行（带 Nova N 标识） -->
+                <StackPanel Orientation="Horizontal" Margin="2,0,2,6" Visibility="Collapsed" x:Name="BufferRow">
+                    <Image Source="pack://application:,,,/Assets/Nova.png"
+                           Width="14" Height="14" Margin="0,0,6,0" VerticalAlignment="Center"
+                           Opacity="0.9"/>
+                    <TextBlock x:Name="BufferText"
+                               Text=""
+                               Foreground="#FF55D8FF"
+                               FontSize="14"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            <!-- 候选列表（搜狗式横向单行排布，窗口宽度随内容自适应） -->
+            <ItemsControl x:Name="CandidateList" PreviewMouseLeftButtonUp="OnCandidatePreviewMouseUp" PreviewMouseWheel="OnPreviewMouseWheel">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border x:Name="ItemBorder" CornerRadius="5" Padding="5,2,7,2" Margin="1,1"
+                                MouseEnter="OnItemMouseEnter" MouseLeave="OnItemMouseLeave"
+                                MouseRightButtonUp="OnItemRightButtonUp">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock x:Name="NumText"
+                                           Text="{Binding Number}"
+                                           Foreground="#FF7A828E"
+                                           FontSize="13"
+                                           Margin="1,0,4,0"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock x:Name="MainText"
+                                           Text="{Binding Text}"
+                                           Foreground="#FFD8DEE4"
+                                           FontSize="{Binding FontSize}"
+                                           VerticalAlignment="Center"/>
+                                <!-- 用户自定义词角标（造词/自学习入库，★=用户收藏/自定义的通用符号） -->
+                                <TextBlock x:Name="UserBadge"
+                                           Text="★"
+                                           FontSize="10"
+                                           Foreground="#B3FFC94D"
+                                           Margin="2,0,0,0"
+                                           VerticalAlignment="Center"
+                                           ToolTip="自定义词"
+                                           Visibility="{Binding UserBadgeVisibility}"/>
+                            </StackPanel>
+                        </Border>
+                        <DataTemplate.Triggers>
+                            <!-- 悬停高亮（鼠标扫过的非选中项）：淡蓝底 + 柔青字，不干扰键盘选中态 -->
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsHovered}" Value="True"/>
+                                    <Condition Binding="{Binding IsSelected}" Value="False"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#FF26384C"/>
+                                <Setter TargetName="MainText" Property="Foreground" Value="#FF9BE0FF"/>
+                            </MultiDataTrigger>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#FF1E2A38"/>
+                                <Setter TargetName="NumText" Property="Foreground" Value="#FF55D8FF"/>
+                                <Setter TargetName="MainText" Property="Foreground" Value="#FF55D8FF"/>
+                                <Setter TargetName="MainText" Property="FontWeight" Value="Bold"/>
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <!-- 页码导航：状态条（中/英标点 + 简/繁）+ ❖ 符号面板 + ◀ 1/6 ▶（仅多页显示） -->
+            <StackPanel x:Name="PagerRow" Orientation="Horizontal" HorizontalAlignment="Right"
+                        Margin="2,6,2,0">
+                <TextBlock x:Name="PunctToggle" Text="，" Foreground="#FF55D8FF" FontSize="13"
+                           Padding="5,0" VerticalAlignment="Center" Cursor="Hand"
+                           ToolTip="中文/英文标点（点击切换）" MouseLeftButtonUp="OnPunctToggleClicked"/>
+                <TextBlock x:Name="TraditionBadge" Text="简" Foreground="#FF7A828E" FontSize="13"
+                           Padding="5,0" VerticalAlignment="Center" Cursor="Hand"
+                           ToolTip="简体/繁体输出（点击切换，也可右键候选词）" MouseLeftButtonUp="OnTraditionBadgeClicked"/>
+                <TextBlock x:Name="WidthToggle" Text="半" Foreground="#FF7A828E" FontSize="13"
+                           Padding="5,0" VerticalAlignment="Center" Cursor="Hand"
+                           ToolTip="全角/半角（点击切换；全角时字母数字标点全角）" MouseLeftButtonUp="OnWidthToggleClicked"/>
+                <TextBlock Text="❖" Foreground="#FF55D8FF" FontSize="13" Padding="6,0"
+                           VerticalAlignment="Center" Cursor="Hand" ToolTip="符号面板"
+                           MouseLeftButtonUp="OnOpenSymbolPanel"/>
+                <TextBlock x:Name="PrevPageBtn" Text="◀" Foreground="#FF7A828E" FontSize="12"
+                           Padding="5,0" VerticalAlignment="Center" Cursor="Hand"
+                           MouseLeftButtonUp="OnPrevPageClicked" Visibility="Collapsed"/>
+                <TextBlock x:Name="PageIndicator" Text="" Foreground="#FF7A828E" FontSize="12"
+                           Margin="4,0" VerticalAlignment="Center" Visibility="Collapsed"/>
+                <TextBlock x:Name="NextPageBtn" Text="▶" Foreground="#FF7A828E" FontSize="12"
+                           Padding="5,0" VerticalAlignment="Center" Cursor="Hand"
+                           MouseLeftButtonUp="OnNextPageClicked" Visibility="Collapsed"/>
+            </StackPanel>
+            </StackPanel>
+            <!-- 右键浮动菜单（候选窗内嵌，不新建窗口 → 天然不抢焦点，编辑器不失焦） -->
+            <Border x:Name="CtxMenu" CornerRadius="6" Padding="0,4" Visibility="Collapsed"
+                    Background="#F21A2530" BorderBrush="#FF2A3644" BorderThickness="1"
+                    HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0">
+                <Border.Effect>
+                    <DropShadowEffect Color="#000000" BlurRadius="12" ShadowDepth="3" Opacity="0.5"/>
+                </Border.Effect>
+                <StackPanel MinWidth="110">
+                    <TextBlock Text="复制该词" FontSize="13" Foreground="#FFD8DEE4" Padding="14,6"
+                               Cursor="Hand" MouseLeftButtonUp="OnCtxCopy"/>
+                    <TextBlock Text="必应搜索该词" FontSize="13" Foreground="#FFD8DEE4" Padding="14,6"
+                               Cursor="Hand" MouseLeftButtonUp="OnCtxSearch"/>
+                    <TextBlock x:Name="CtxDeleteItem" Text="删除该词" FontSize="13" Foreground="#FFD8DEE4"
+                               Padding="14,6" Cursor="Hand" MouseLeftButtonUp="OnCtxDelete"
+                               Visibility="Collapsed"/>
+                    <TextBlock x:Name="CtxDemoteItem" Text="降低排位（不再靠前）" FontSize="13" Foreground="#FFD8DEE4"
+                               Padding="14,6" Cursor="Hand" MouseLeftButtonUp="OnCtxDemote"/>
+                    <!-- 简繁输出切换（当前模式青色高亮） -->
+                    <Border Height="1" Background="#FF2A3644" Margin="8,4"/>
+                    <TextBlock x:Name="CtxSimplifiedItem" Text="简体输出" FontSize="13" Foreground="#FFD8DEE4"
+                               Padding="14,6" Cursor="Hand" MouseLeftButtonUp="OnCtxSetSimplified"/>
+                    <TextBlock x:Name="CtxTraditionalItem" Text="繁体输出" FontSize="13" Foreground="#FFD8DEE4"
+                               Padding="14,6" Cursor="Hand" MouseLeftButtonUp="OnCtxSetTraditional"/>
+                    <Border Height="1" Background="#FF2A3644" Margin="8,4"/>
+                    <TextBlock Text="重置位置" FontSize="13" Foreground="#FFD8DEE4" Padding="14,6"
+                               Cursor="Hand" MouseLeftButtonUp="OnCtxResetPosition"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
