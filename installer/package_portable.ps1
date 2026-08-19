@@ -63,9 +63,10 @@ if ($missing.Count -gt 0) {
     exit 1
 }
 # 可选：预生成词库缓存（缺失只警告——引擎首启会自行生成，仅首次稍慢）
-if (-not (Test-Path (Join-Path $root 'bin\pinyin-plus-big.txt.bin'))) {
-    Write-Host '提示：未找到词库缓存 bin\pinyin-plus-big.txt.bin（运行 ImeDictTest.exe 生成），' -ForegroundColor Yellow
-    Write-Host '      用户首次启动引擎会自行生成（稍慢，不影响功能）。' -ForegroundColor Yellow
+foreach ($cache in @('pinyin-plus-big.txt.bin', 'pinyin-plus.txt.bin')) {
+    if (-not (Test-Path (Join-Path $root "bin\$cache"))) {
+        Write-Host "提示：未找到词库缓存 bin\$cache（引擎首次加载对应词库时自行生成，稍慢，不影响功能）。" -ForegroundColor Yellow
+    }
 }
 
 # ---------- 2. 组装便携版文件夹 ---------------------------------------------
@@ -82,10 +83,14 @@ Copy-Item (Join-Path $root 'src\engine\x64\Release\PinyinPlus.Engine.exe') (Join
 Copy-Item (Join-Path $root 'src\activate\x64\Release\ImeActivate.exe')    (Join-Path $out 'ImeActivate.exe')
 Copy-Item (Join-Path $root 'bin\pinyin-plus.txt')                        (Join-Path $out 'pinyin-plus.txt')
 Copy-Item (Join-Path $root 'bin\pinyin-plus-big.txt')                    (Join-Path $out 'pinyin-plus-big.txt')
-if (Test-Path (Join-Path $root 'bin\pinyin-plus-big.txt.bin')) {
-    Copy-Item (Join-Path $root 'bin\pinyin-plus-big.txt.bin')            (Join-Path $out 'pinyin-plus-big.txt.bin')
-    Write-Host '      含预生成词库缓存（首启直接命中）。' -ForegroundColor DarkGray
+$withCache = $false
+foreach ($c in @('pinyin-plus.txt.bin', 'pinyin-plus-big.txt.bin')) {
+    if (Test-Path (Join-Path $root "bin\$c")) {
+        Copy-Item (Join-Path $root "bin\$c") (Join-Path $out $c)
+        $withCache = $true
+    }
 }
+if ($withCache) { Write-Host '      含预生成词库缓存（首启直接命中）。' -ForegroundColor DarkGray }
 foreach ($d in @('STCharacters.txt', 'STPhrases.txt', 'TSCharacters.txt', 'TSPhrases.txt', 'symbols.txt')) {
     Copy-Item (Join-Path $root "tools\data\$d")                          (Join-Path $out $d)
 }

@@ -8,18 +8,18 @@
 ## Download
 
 > **Windows 安装包（推荐）：**
-> [NovaInput-Setup-1.0.2.exe](https://github.com/fuxingliang/nova-ime/releases/download/v1.0.2/NovaInput-Setup-1.0.2.exe)
+> [NovaInput-Setup-2.0.1.exe](https://github.com/fuxingliang/nova-ime/releases/download/v2.0.1/NovaInput-Setup-2.0.1.exe)
 > （一键安装：TSF 注册 + 激活默认 + 启动候选窗服务）
 >
 > **Windows 便携版（无需安装）：**
-> [NovaInput-v1.0.2-windows-portable.zip](https://github.com/fuxingliang/nova-ime/releases/download/v1.0.2/NovaInput-v1.0.2-windows-portable.zip)
-> （~110 MB — 解压后右键 `install-portable.ps1` 用 PowerShell 运行）
+> [NovaInput-v2.0.1-windows-portable.zip](https://github.com/fuxingliang/nova-ime/releases/download/v2.0.1/NovaInput-v2.0.1-windows-portable.zip)
+> （~123 MB — 解压后右键 `install-portable.ps1` 用 PowerShell 运行）
 >
 > [便携版包内说明](./docs/portable-release-quickstart.md) · [全部 Release](https://github.com/fuxingliang/nova-ime/releases)
 
 ## Status
 
-[`v1.0.2`](https://github.com/fuxingliang/nova-ime/releases/tag/v1.0.2) — rime-ice 大词库（88 万条）+ 设置面板 + 便携版
+[`v2.0.1`](https://github.com/fuxingliang/nova-ime/releases/tag/v2.0.1) — 当前在用稳定版（rime-ice 88 万条词库 + 设置面板 + 便携版）
 
 What is already working well:
 

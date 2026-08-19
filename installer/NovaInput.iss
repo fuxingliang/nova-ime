@@ -17,7 +17,7 @@
 ; ============================================================
 
 #ifndef MyAppVersion
-  #define MyAppVersion "1.0.2"
+  #define MyAppVersion "2.0.1"
 #endif
 
 #define MyAppName "Nova 输入法"
