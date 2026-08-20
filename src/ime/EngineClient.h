@@ -71,6 +71,7 @@ private:
     static std::atomic<bool> _running;
     static DWORD _lastLaunchTick;         // 上次拉起引擎的时间戳（防崩溃循环，最小间隔重启）
     static DWORD _connectedTick;          // 管道最近一次连接成功的时间（引擎冷启动窗口检测）
+    static DWORD _lastSuccessTick;        // 最近一次请求成功的时间（引擎就绪证明，冷窗口门控）
     static std::atomic<bool> _keepAliveStarted;   // 保活线程只启动一次
     static HANDLE _keepAliveThread;
 };

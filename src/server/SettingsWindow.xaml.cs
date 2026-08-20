@@ -60,6 +60,7 @@ public partial class SettingsWindow : Window
         LearningCheck.IsChecked = EngineConf.ReadLearning();
         BigDictCheck.IsChecked = EngineConf.ReadBigDict();
         TraditionCheck.IsChecked = EngineConf.ReadTradition();
+        CharSelCheck.IsChecked = EngineConf.ReadCharSplit();
     }
 
     private void OnSaveClick(object sender, RoutedEventArgs e)
@@ -76,9 +77,10 @@ public partial class SettingsWindow : Window
         bool learning = LearningCheck.IsChecked == true;
         bool big = BigDictCheck.IsChecked == true;
         bool tradition = TraditionCheck.IsChecked == true;
+        bool charSel = CharSelCheck.IsChecked == true;
         bool bigChanged = big != EngineConf.ReadBigDict();
         bool traditionChanged = tradition != EngineConf.ReadTradition();
-        EngineConf.WriteAll(learning, big, tradition, EngineConf.ReadPunct(), EngineConf.ReadWidth());
+        EngineConf.WriteAll(learning, big, tradition, EngineConf.ReadPunct(), EngineConf.ReadWidth(), charSel);
 
         // 大字库模式切换：通知引擎双缓冲热重载换词库
         //（默认 pinyin-plus.txt ↔ 大字库 pinyin-plus-big.txt，后台重建打字零阻塞）
@@ -111,6 +113,12 @@ public partial class SettingsWindow : Window
     private void OnCloseClick(object sender, RoutedEventArgs e)
     {
         Close();
+    }
+
+    /// <summary>「快捷键」按钮 → 打开快捷键速查窗（单例，不关设置面板）。</summary>
+    private void OnShortcutsClick(object sender, RoutedEventArgs e)
+    {
+        ShortcutsWindow.Open();
     }
 
     /// <summary>导出用户词库（备份/迁移）。</summary>

@@ -11,6 +11,7 @@
 #include "SampleIME.h"
 #include "CandidateListUIPresenter.h"
 #include "CompositionProcessorEngine.h"
+#include "PinyinIpc.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -589,6 +590,57 @@ Exit:
 HRESULT CSampleIME::_HandleCompositionPunctuation(TfEditCookie ec, _In_ ITfContext *pContext, WCHAR wch)
 {
     HRESULT hr = S_OK;
+
+    // 搜狗式拆字（engine.conf charsel=1，默认开）：候选态选中多字词时，
+    // `;` 只上屏第 1 字、`'` 只上屏第 2 字（剩余字符丢弃、组合结束）。
+    // 单字候选（目标字不存在）/ 造词模式 / 开关关闭 → 走下方原标点逻辑。
+    if (Global::IsCharSplitEnabled() &&
+        (wch == L';' || wch == L'\'') &&
+        _candidateMode != CANDIDATE_NONE && _pCandidateListUIPresenter &&
+        !_pCompositionProcessorEngine->IsMakeWordMode())
+    {
+        DWORD_PTR candidateLen = 0;
+        const WCHAR* pCandidateString = nullptr;
+
+        candidateLen = _pCandidateListUIPresenter->_GetSelectedCandidateString(&pCandidateString);
+
+        // 目标字序号：`;`=第 1 字(0)，`'`=第 2 字(1)
+        const DWORD_PTR targetIndex = (wch == L';') ? 0 : 1;
+
+        // 按字推进 offset（WCHAR 单位，高代理占 2）
+        DWORD_PTR offset = 0;
+        DWORD_PTR charCount = 0;
+        while (charCount < targetIndex && offset < candidateLen)
+        {
+            const WCHAR w = pCandidateString[offset];
+            offset += (candidateLen > offset + 1 && w >= 0xD800 && w <= 0xDBFF) ? 2 : 1;
+            charCount++;
+        }
+        // 目标字长度（高代理且有跟随字符才算 2，孤立代理按 1 防越界）
+        DWORD_PTR charLen = 1;
+        if (offset < candidateLen)
+        {
+            const WCHAR w = pCandidateString[offset];
+            charLen = (candidateLen > offset + 1 && w >= 0xD800 && w <= 0xDBFF) ? 2 : 1;
+        }
+
+        // 目标字存在且完整（候选至少 2 字）才拆字；否则落到标点逻辑
+        if (charCount == targetIndex && offset + charLen <= candidateLen)
+        {
+            CPinyinIpc::DebugLog(L"CharSplit: key=0x%04x commit char idx=%lu (len=%lu, candidateLen=%lu)",
+                wch, targetIndex, charLen, candidateLen);
+            CStringRange singleChar;
+            singleChar.Set(pCandidateString + offset, charLen);
+            _AddComposingAndChar(ec, pContext, &singleChar);
+            // 必须用 _HandleComplete（与空格选词同路径）：只删候选窗+终止组合，
+            // 组合内刚写入的字随终止提交上屏。
+            // ★ 不能用 _HandleCancel：其第一步 _RemoveDummyCompositionForComposing
+            // 会无条件清空整个组合范围，把刚写入的字删掉（2026-08-20 实测：
+            // CharSplit 日志后 _SetInputString len=1 成功，但字未上屏）。
+            _HandleComplete(ec, pContext);
+            return S_OK;
+        }
+    }
 
     if (_candidateMode != CANDIDATE_NONE && _pCandidateListUIPresenter)
     {

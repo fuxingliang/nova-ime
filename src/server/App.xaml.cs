@@ -113,6 +113,7 @@ public partial class App : Application
 
             var menu = new System.Windows.Forms.ContextMenuStrip();
             menu.Items.Add("打开设置", null, (_, _) => Dispatcher.BeginInvoke(OpenSettings));
+            menu.Items.Add("快捷键", null, (_, _) => Dispatcher.BeginInvoke(() => ShortcutsWindow.Open()));
             menu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
             menu.Items.Add("关于 Nova 输入法", null, (_, _) => Dispatcher.BeginInvoke(ShowAbout));
             _trayIcon.ContextMenuStrip = menu;

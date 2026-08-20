@@ -22,6 +22,7 @@ CRITICAL_SECTION CEngineClient::_cs;
 std::atomic<bool> CEngineClient::_running{ false };
 DWORD CEngineClient::_lastLaunchTick = 0;
 DWORD CEngineClient::_connectedTick = 0;
+DWORD CEngineClient::_lastSuccessTick = 0;
 std::atomic<bool> CEngineClient::_keepAliveStarted{ false };
 HANDLE CEngineClient::_keepAliveThread = nullptr;
 
@@ -267,8 +268,9 @@ DWORD WINAPI CEngineClient::KeepAliveThreadProc(LPVOID)
             ClientLog(L"KeepAlive connect FAILED err=%lu tick=%lu", GetLastError(), GetTickCount());
         }
 
-        // 引擎冷启动（加载 50MB 词库）可能需要数百毫秒，这里慢速轮询避免空转
-        Sleep(300);
+        // 未连接时 100ms 快轮询（尽快拉起/重连，缩短首键丢失窗口）；
+        // 已连接后 300ms 慢轮询（仅探活，避免空转）
+        Sleep(_hPipe == INVALID_HANDLE_VALUE ? 100 : 300);
     }
 
     ClientLog(L"KeepAlive thread exited");
@@ -290,6 +292,23 @@ bool CEngineClient::RequestResponse(unsigned int reqType, _In_ const std::vector
     DWORD t0 = GetTickCount();
 
     EnterCriticalSection(&_cs);
+    // 快速路径：管道句柄无效时同步试连一次。引擎侧管道为 PIPE_UNLIMITED_INSTANCES，
+    // CreateFile 非阻塞（引擎在跑=毫秒级成功；引擎不在=立即 ERROR_FILE_NOT_FOUND）。
+    // 新宿主应用注入 DLL 后首键即连上（引擎由 Server 看门狗保活，几乎总在跑），
+    // 首键不再丢失；引擎真不在时本处立即失败，由保活线程负责拉起，零等待。
+    if (_hPipe == INVALID_HANDLE_VALUE)
+    {
+        HANDLE hFast = CreateFileW(
+            L"\\\\.\\pipe\\PinyinPlus.Engine",
+            GENERIC_READ | GENERIC_WRITE,
+            0, nullptr, OPEN_EXISTING, 0, nullptr);
+        if (hFast != INVALID_HANDLE_VALUE)
+        {
+            _hPipe = hFast;
+            _connectedTick = GetTickCount();
+            ClientLog(L"FastPath connected (tick=%lu)", GetTickCount());
+        }
+    }
     HANDLE hPipe = EnsureConnected();
     if (hPipe == INVALID_HANDLE_VALUE)
     {
@@ -297,13 +316,21 @@ bool CEngineClient::RequestResponse(unsigned int reqType, _In_ const std::vector
         return false;
     }
 
-    // 引擎冷启动窗口（管道刚重连、引擎还在加载 50MB 词库）：把超时压到 30ms
-    // 快速失败，避免每次击键阻塞 TSF 线程 300ms。部署/崩溃重启时宿主(尤其
-    // Chromium)叠加渲染卡顿会表现为"输入法卡住应用"。
+    // 冷启动快速失败窗口（2026-08-20 修复"首键反复出英文"死循环）：
+    // 旧逻辑"重连后 3 秒内一律 30ms 超时"存在致命矛盾——响应轮询下限 ~31ms
+    // （Sleep(1) 在 Windows 实际粒度 ~15ms），30ms 超时在引擎完全就绪时
+    // 也必然超时 → ResetPipe → 保活 300ms 后重连 → _connectedTick 刷新 →
+    // 窗口重置 → 持续打字时每个键都在窗口内必超时（候选窗不显示，拼音原样
+    // 上屏表现为"英文"），只有停顿 3 秒以上才恢复（用户感知的"预热"）。
+    // 现改为：仅当"重连后尚无一次成功请求"（_lastSuccessTick < _connectedTick）
+    // 才启用快速失败；超时取 150ms = 高于轮询下限(~31ms)保证就绪引擎必成功，
+    // 又低于常规 300ms 保持快速失败。首个成功请求即证明引擎就绪（引擎管道
+    // 在词库加载完成后才创建），窗口永久解除直至下次重连。
     DWORD effectiveTimeout = timeoutMs;
-    if (_connectedTick != 0 && (GetTickCount() - _connectedTick) < 3000)
+    if (_connectedTick != 0 && _lastSuccessTick < _connectedTick
+        && (GetTickCount() - _connectedTick) < 3000)
     {
-        effectiveTimeout = 30;
+        effectiveTimeout = 150;
     }
 
     // 组装请求帧
@@ -398,6 +425,8 @@ bool CEngineClient::RequestResponse(unsigned int reqType, _In_ const std::vector
         ClientLog(L"RequestResponse SLOW type=%u elapsed=%lums", reqType, elapsed);
     }
 
+    // 成功 = 引擎就绪证明：解除冷窗口门控，直至下次重连
+    _lastSuccessTick = GetTickCount();
     LeaveCriticalSection(&_cs);
     return true;
 }

@@ -149,7 +149,7 @@ public partial class CandidateWindow : Window
             return;
         }
         EngineConf.WriteAll(EngineConf.ReadLearning(), EngineConf.ReadBigDict(),
-            tradition, EngineConf.ReadPunct(), EngineConf.ReadWidth());
+            tradition, EngineConf.ReadPunct(), EngineConf.ReadWidth(), EngineConf.ReadCharSplit());
         EnginePipeClient.SetTradition(tradition);   // 引擎即时生效（候选/上屏转繁体）
         RefreshStatusIndicators();
     }
@@ -175,7 +175,7 @@ public partial class CandidateWindow : Window
     {
         bool next = !EngineConf.ReadPunct();
         EngineConf.WriteAll(EngineConf.ReadLearning(), EngineConf.ReadBigDict(),
-            EngineConf.ReadTradition(), next, EngineConf.ReadWidth());
+            EngineConf.ReadTradition(), next, EngineConf.ReadWidth(), EngineConf.ReadCharSplit());
         RefreshStatusIndicators();
         // DLL 各宿主进程打标点键时实时读 engine.conf，无需消息，下次按键立即生效
     }
@@ -184,7 +184,7 @@ public partial class CandidateWindow : Window
     {
         bool next = !EngineConf.ReadWidth();
         EngineConf.WriteAll(EngineConf.ReadLearning(), EngineConf.ReadBigDict(),
-            EngineConf.ReadTradition(), EngineConf.ReadPunct(), next);
+            EngineConf.ReadTradition(), EngineConf.ReadPunct(), next, EngineConf.ReadCharSplit());
         RefreshStatusIndicators();
         // DLL 上屏/标点时实时读 engine.conf，无需消息，下次输入立即生效
     }
@@ -352,9 +352,17 @@ public partial class CandidateWindow : Window
         }
     }
 
-    /// <summary>左键点击窗口其他区域 → 关闭右键菜单。</summary>
+    /// <summary>左键点击窗口其他区域 → 关闭右键菜单。
+    /// ★ 点击菜单项本身时不关（隧道事件先于菜单项 ButtonUp 触发；若此处抢先
+    /// 隐藏菜单，菜单项 ButtonUp 因元素已 Collapsed 不再命中而丢失，菜单项
+    /// 将全部无法点击）。菜单项的 ButtonUp 处理器（OnCtxShortcuts 等）内部
+    /// 会自行 CloseCtxMenu()。</summary>
     private void OnMainGridMouseLeftDown(object sender, MouseButtonEventArgs e)
     {
+        if (e.OriginalSource is DependencyObject src && IsWithin(src, CtxMenu))
+        {
+            return;   // 点击菜单项：交给项自身的 ButtonUp 处理
+        }
         CloseCtxMenu();
     }
 
@@ -516,6 +524,13 @@ public partial class CandidateWindow : Window
         {
             DemoteWordRequested?.Invoke(_ctxWord);
         }
+    }
+
+    /// <summary>右键菜单「快捷键」→ 打开快捷键速查窗（单例）。</summary>
+    private void OnCtxShortcuts(object sender, MouseButtonEventArgs e)
+    {
+        CloseCtxMenu();
+        ShortcutsWindow.Open();
     }
 
     private void CloseCtxMenu()

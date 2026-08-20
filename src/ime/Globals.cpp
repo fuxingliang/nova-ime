@@ -507,6 +507,14 @@ BOOL IsChinesePunctuationEnabled()
 {
     return ReadConfFlag("punct", TRUE);
 }
+
+// 搜狗式拆字（engine.conf charsel=1，默认开）：候选态选中多字词时
+// `;`=第 1 字、`'`=第 2 字，只上屏该单字（剩余字符丢弃）；
+// 单字候选/开关关时回落普通标点行为
+BOOL IsCharSplitEnabled()
+{
+    return ReadConfFlag("charsel", TRUE);
+}
 }
 
 //---------------------------------------------------------------------

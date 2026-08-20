@@ -1,0 +1,288 @@
+<Window x:Class="PinyinPlus.Server.ShortcutsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Nova 输入法 - 快捷键"
+        Width="470" Height="640"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ShowInTaskbar="True">
+    <Window.Resources>
+        <!-- 速查表样式：键名（青色等宽）+ 说明（灰色） -->
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#FF55D8FF"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,12,0,4"/>
+        </Style>
+        <Style x:Key="KeyText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="Foreground" Value="#FF55D8FF"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="DescText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#FFB8C2CC"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        <Style x:Key="KeyRow" TargetType="Grid">
+            <Setter Property="Margin" Value="0,3"/>
+        </Style>
+    </Window.Resources>
+
+    <Border CornerRadius="14" BorderBrush="#FF2A3644" BorderThickness="1">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#FF0C1117" Offset="0"/>
+                <GradientStop Color="#FF172330" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.Background>
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" BlurRadius="24" ShadowDepth="6" Opacity="0.5"/>
+        </Border.Effect>
+
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- 标题 -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,2,0,4">
+                <Image Source="pack://application:,,,/Assets/Nova.png" Width="30" Height="30" Margin="0,0,10,0"/>
+                <StackPanel>
+                    <TextBlock Text="Nova 输入法" FontSize="19" FontWeight="Bold" Foreground="#FFEAF6FF"/>
+                    <TextBlock Text="快捷键速查" FontSize="11" Foreground="#FF7A828E" Margin="1,2,0,0"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- 速查表（单一数据源：加新键只改这里 + README 使用章节） -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- 系统 -->
+                    <TextBlock Text="系统" Style="{StaticResource SectionTitle}"/>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Win+Space / Alt+Shift" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="切换输入法" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="托盘 Nova 图标" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="双击=设置面板；右键=设置 / 快捷键 / 关于" Style="{StaticResource DescText}"/>
+                    </Grid>
+
+                    <!-- 输入拼音时（候选窗未显示） -->
+                    <TextBlock Text="输入拼音时（候选窗未显示）" Style="{StaticResource SectionTitle}"/>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="a-z" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="输入拼音（支持简拼，如 zg → 两个）" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="空格" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="转为候选窗" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Enter" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="上屏拼音原文（打英文用）" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Esc" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="取消本次输入" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Backspace" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="删除一个拼音字符" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="← / →" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="拼音内移动" Style="{StaticResource DescText}"/>
+                    </Grid>
+
+                    <!-- 候选窗显示时 -->
+                    <TextBlock Text="候选窗显示时" Style="{StaticResource SectionTitle}"/>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="空格" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="选中高亮词上屏" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="1 - 9" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="选第 N 个词" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="0" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="进入造词模式（分段选字，空格逐段确认）" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text=";" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="拆字：上屏第 1 字（如 两个 → 两）" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="'" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="拆字：上屏第 2 字（如 两个 → 个）" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="↑ / ↓" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="移动候选词" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="PgUp / PgDn" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="上翻页 / 下翻页（也可用 - / =）" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Home / End" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="候选列表顶部 / 底部" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Enter" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="上屏拼音原文（打英文用）" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Esc / Backspace" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="取消并隐藏候选窗" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Ctrl+Delete" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="删除选中的用户词" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Ctrl+PgDn" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="选中的词降权沉底（不再靠前）" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text=";  .  等标点" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="先选中高亮词，再上屏中文标点" Style="{StaticResource DescText}"/>
+                    </Grid>
+
+                    <!-- 鼠标 -->
+                    <TextBlock Text="鼠标" Style="{StaticResource SectionTitle}"/>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="右键候选词" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="复制 / 搜索 / 删除 / 降权 / 简繁切换 / 重置位置 / 快捷键" Style="{StaticResource DescText}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="状态条按钮" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="简/繁（输出）· ，/,（标点）· 全/半（宽度）" Style="{StaticResource DescText}"/>
+                    </Grid>
+
+                    <!-- 造词模式 -->
+                    <TextBlock Text="造词模式" Style="{StaticResource SectionTitle}"/>
+                    <Grid Style="{StaticResource KeyRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="165"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="按 0 后" Style="{StaticResource KeyText}"/>
+                        <TextBlock Grid.Column="1" Text="候选窗变为造词列表；空格确认当前段选字并推进；Esc 或继续打字母退出造词" Style="{StaticResource DescText}"/>
+                    </Grid>
+
+                    <!-- 提示 -->
+                    <TextBlock Text="提示：拆字（; / '）与简繁/标点/全半角开关均可在「设置」面板中调整。"
+                               FontSize="11" Foreground="#FF7A828E" TextWrapping="Wrap" Margin="0,14,0,0"/>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- 关闭 -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+                <Button x:Name="CloseButton" Content="关闭" Width="88" Height="34"
+                        Background="#FF1E2A38" Foreground="#FFD8DEE4" BorderBrush="#FF2A3644"
+                        BorderThickness="1" Click="OnCloseClick" Cursor="Hand"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

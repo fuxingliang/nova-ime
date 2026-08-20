@@ -154,6 +154,8 @@
                     <Border Height="1" Background="#FF2A3644" Margin="8,4"/>
                     <TextBlock Text="重置位置" FontSize="13" Foreground="#FFD8DEE4" Padding="14,6"
                                Cursor="Hand" MouseLeftButtonUp="OnCtxResetPosition"/>
+                    <TextBlock Text="快捷键" FontSize="13" Foreground="#FF55D8FF" Padding="14,6"
+                               Cursor="Hand" MouseLeftButtonUp="OnCtxShortcuts"/>
                 </StackPanel>
             </Border>
         </Grid>

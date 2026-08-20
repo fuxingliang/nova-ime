@@ -137,6 +137,9 @@ extern const struct _PUNCTUATION PunctuationTable[14];
 BOOL IsFullWidthModeEnabled();
 // 中文标点模式（punct=1，默认开）：标点键映射中文标点；关闭则直出半角 ASCII
 BOOL IsChinesePunctuationEnabled();
+// 搜狗式拆字（charsel=1，默认开）：候选态选中多字词时 `;`=第1字、`'`=第2字，
+// 只上屏该单字（剩余字丢弃，搜狗式）；单字候选/开关关时回落普通标点行为
+BOOL IsCharSplitEnabled();
 
 extern const GUID SampleIMEGuidLangBarIMEMode;
 extern const GUID SampleIMEGuidLangBarDoubleSingleByte;
